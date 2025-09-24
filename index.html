@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Speed Limit vs Traffic Lights - Interactive Demonstration</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+            background: #1a1a1a;
+            color: white;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        h1 {
+            text-align: center;
+            color: #4CAF50;
+        }
+        .explanation {
+            background: #333;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .controls {
+            background: #2a2a2a;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .control-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: inline-block;
+            width: 200px;
+            font-weight: bold;
+        }
+        input[type="range"] {
+            width: 200px;
+            margin: 0 10px;
+        }
+        .value-display {
+            font-family: monospace;
+            color: #4CAF50;
+        }
+        #simulation {
+            border: 2px solid #555;
+            border-radius: 8px;
+            background: #222;
+        }
+        .legend {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 10px;
+            font-size: 14px;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 2px;
+        }
+        button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-right: 10px;
+        }
+        button:hover {
+            background: #45a049;
+        }
+        button:disabled {
+            background: #666;
+            cursor: not-allowed;
+        }
+        .light-controls-container {
+            display: flex;
+            justify-content: space-between;
+            max-width: 1000px;
+            margin: 20px auto;
+            padding: 0 150px; /* Align with road margins */
+        }
+        .light-control {
+            background: #2a2a2a;
+            padding: 15px;
+            border-radius: 8px;
+            width: 200px;
+            text-align: center;
+        }
+        .light-control h4 {
+            margin: 0 0 10px 0;
+            color: #4CAF50;
+        }
+        .light-control .control-group {
+            margin-bottom: 10px;
+        }
+        .light-control label {
+            display: block;
+            width: auto;
+            font-size: 12px;
+            margin-bottom: 5px;
+        }
+        .light-control input[type="range"] {
+            width: 120px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Speed Limit Traffic Light Myth Debunked</h1>
+
+        <div class="explanation">
+            <p><strong>Myth:</strong> "If you drive exactly the speed limit, you'll hit all green lights."</p>
+            <p><strong>Reality:</strong> This is impossible for traffic traveling in both directions on the same road. This simulation shows why traffic lights cannot be perfectly synchronized for cars traveling at the speed limit in opposite directions simultaneously.</p>
+        </div>
+
+        <div class="controls">
+            <div class="control-group">
+                <label for="speedLimit">Speed Limit (mph):</label>
+                <input type="range" id="speedLimit" min="25" max="65" value="60" step="5">
+                <span class="value-display" id="speedLimitValue">60</span>
+            </div>
+
+            <div class="control-group">
+                <label for="middleLightPosition">Middle Light Position (%):</label>
+                <input type="range" id="middleLightPosition" min="25" max="75" value="35" step="5">
+                <span class="value-display" id="middleLightPositionValue">35</span>
+            </div>
+
+            <div class="control-group">
+                <button id="startBtn">Start Simulation</button>
+                <button id="pauseBtn" disabled>Pause</button>
+                <button id="resetBtn">Reset</button>
+            </div>
+        </div>
+
+        <canvas id="simulation" width="1000" height="400"></canvas>
+
+        <!-- Light Controls positioned under each light -->
+        <div class="light-controls-container">
+            <div class="light-control" id="leftLightControls">
+                <h4>Left Light</h4>
+                <div class="control-group">
+                    <label for="leftLightOffset">Offset (sec):</label>
+                    <input type="range" id="leftLightOffset" min="0" max="60" value="0" step="1">
+                    <span class="value-display" id="leftLightOffsetValue">0</span>
+                </div>
+                <div class="control-group">
+                    <label for="leftLightCycle">Cycle (sec):</label>
+                    <input type="range" id="leftLightCycle" min="5" max="60" value="30" step="5">
+                    <span class="value-display" id="leftLightCycleValue">30</span>
+                </div>
+            </div>
+
+            <div class="light-control" id="middleLightControls">
+                <h4>Middle Light</h4>
+                <div class="control-group">
+                    <label for="middleLightOffset">Offset (sec):</label>
+                    <input type="range" id="middleLightOffset" min="0" max="60" value="6" step="1">
+                    <span class="value-display" id="middleLightOffsetValue">6</span>
+                </div>
+                <div class="control-group">
+                    <label for="middleLightCycle">Cycle (sec):</label>
+                    <input type="range" id="middleLightCycle" min="5" max="60" value="30" step="5">
+                    <span class="value-display" id="middleLightCycleValue">30</span>
+                </div>
+            </div>
+
+            <div class="light-control" id="rightLightControls">
+                <h4>Right Light</h4>
+                <div class="control-group">
+                    <label for="rightLightOffset">Offset (sec):</label>
+                    <input type="range" id="rightLightOffset" min="0" max="60" value="12" step="1">
+                    <span class="value-display" id="rightLightOffsetValue">12</span>
+                </div>
+                <div class="control-group">
+                    <label for="rightLightCycle">Cycle (sec):</label>
+                    <input type="range" id="rightLightCycle" min="5" max="60" value="30" step="5">
+                    <span class="value-display" id="rightLightCycleValue">30</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-color" style="background: #ff4444;"></div>
+                <span>Red Light</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #ffff44;"></div>
+                <span>Yellow Light</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #44ff44;"></div>
+                <span>Green Light</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #4444ff;"></div>
+                <span>Car (East)</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #ff44ff;"></div>
+                <span>Car (West)</span>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="./src/main.ts"></script>
+</body>
+</html>
